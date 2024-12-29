@@ -73,7 +73,7 @@ async function generateCaption(
 
   const captionSystemMessage =
     `\
-You are a stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
+You are a BSE Indian stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
 
 These are the tools you have available:
 1. showStockFinancials
@@ -112,30 +112,30 @@ You have just called a tool (` +
   
 Example:
 
-User: What is the price of AAPL?
-Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "AAPL" } } } 
+User: What is the price of PAYTM?
+Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
 
-Assistant (you): The price of AAPL stock is provided above. I can also share a chart of AAPL or get more information about its financials.
+Assistant (you): The price of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information about its financials.
 
 or
 
-Assistant (you): This is the price of AAPL stock. I can also generate a chart or share further financial data.
+Assistant (you): This is the price of PAYTM stock. I can also generate a chart or share further financial data.
 
 or 
-Assistant (you): Would you like to see a chart of AAPL or get more information about its financials?
+Assistant (you): Would you like to see a chart of PAYTM or get more information about its financials?
 
 Example 2 :
 
-User: Compare AAPL and MSFT stock prices
-Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockChart" }, "parameters": { "symbol": "AAPL" , "comparisonSymbols" : [{"symbol": "MSFT", "position": "SameScale"}] } } } 
+User: Compare PAYTM and SWIGGY stock prices
+Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockChart" }, "parameters": { "symbol": "BSE:PAYTM" , "comparisonSymbols" : [{"symbol": "BSE:SWIGGY", "position": "SameScale"}] } } } 
 
-Assistant (you): The chart illustrates the recent price movements of Microsoft (MSFT) and Apple (AAPL) stocks. Would you like to see the get more information about the financials of AAPL and MSFT stocks?
+Assistant (you): The chart illustrates the recent price movements of Swiggy (BSE:SWIGGY) and Paytm (BSE:PAYTM) stocks. Would you like to see the get more information about the financials of PAYTM and SWIGGY stocks?
 or
 
-Assistant (you): This is the chart for AAPL and MSFT stocks. I can also share individual price history data or show a market overview.
+Assistant (you): This is the chart for PAYTM and SWIGGY stocks. I can also share individual price history data or show a market overview.
 
 or 
-Assistant (you): Would you like to see the get more information about the financials of AAPL and MSFT stocks?
+Assistant (you): Would you like to see the get more information about the financials of PAYTM and SWIGGY stocks?
 
 ## Guidelines
 Talk like one of the above responses, but BE CREATIVE and generate a DIVERSE response. 
@@ -197,7 +197,7 @@ async function submitUserMessage(content: string) {
       initial: <SpinnerMessage />,
       maxRetries: 1,
       system: `\
-You are a stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
+You are a BSE Indian stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
 
 ### Cryptocurrency Tickers
 For any cryptocurrency, append "USD" at the end of the ticker when using functions. For instance, "DOGE" should be "DOGEUSD".
@@ -207,13 +207,13 @@ For any cryptocurrency, append "USD" at the end of the ticker when using functio
 Never provide empty results to the user. Provide the relevant tool if it matches the user's request. Otherwise, respond as the stock bot.
 Example:
 
-User: What is the price of AAPL?
-Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "AAPL" } } } 
+User: What is the price of PAYTM?
+Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
 
 Example 2:
 
-User: What is the price of AAPL?
-Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "AAPL" } } } 
+User: What is the price of PAYTM?
+Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
     `,
       messages: [
         ...aiState.get().messages.map((message: any) => ({
@@ -255,7 +255,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
             symbol: z
               .string()
               .describe(
-                'The name or symbol of the stock or currency. e.g. DOGE/AAPL/USD.'
+                'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
               ),
             comparisonSymbols: z.array(z.object({
               symbol: z.string(),
@@ -329,7 +329,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
             symbol: z
               .string()
               .describe(
-                'The name or symbol of the stock or currency. e.g. DOGE/AAPL/USD.'
+                'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
               )
           }),
           generate: async function* ({ symbol }) {
@@ -393,7 +393,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
             symbol: z
               .string()
               .describe(
-                'The name or symbol of the stock or currency. e.g. DOGE/AAPL/USD.'
+                'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
               )
           }),
           generate: async function* ({ symbol }) {
@@ -458,7 +458,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
             symbol: z
               .string()
               .describe(
-                'The name or symbol of the stock or currency. e.g. DOGE/AAPL/USD.'
+                'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
               )
           }),
           generate: async function* ({ symbol }) {

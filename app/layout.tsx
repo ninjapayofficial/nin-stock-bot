@@ -13,7 +13,7 @@ export const metadata = {
     ? new URL(`https://${process.env.VERCEL_URL}`)
     : undefined,
   title: {
-    default: 'StockBot powered by Groq',
+    default: 'NIN StockBot powered by Groq',
     template: `%s - StockBot powered by Groq`
   },
   description:
@@ -55,7 +55,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex flex-col flex-1 bg-muted/50">{children}</main>
+            <main className="flex flex-col flex-1 bg-muted/50" style={{ backgroundColor:'#f6f9fd' }} 
+            >{children}</main>
           </div>
           {/* <ThemeToggle /> */}
         </Providers>

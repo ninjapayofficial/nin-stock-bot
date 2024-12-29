@@ -20,7 +20,7 @@ const Separator = React.forwardRef<
       className={cn(
         'shrink-0',
         // bg-border to add back border in separator
-        orientation === 'horizontal' ? 'h-[1px] w-full' : 'h-full w-[1px]',
+        orientation === 'horizontal' ? 'h-px w-full' : 'h-full w-px',
         className
       )}
       {...props}

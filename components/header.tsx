@@ -15,12 +15,12 @@ import { Session } from '@/lib/types'
 async function UserOrLogin() {
   return (
     <>
-      <Link href="https://wow.groq.com/groq-labs/" rel="nofollow">
+      <Link href="https://nin.in/trade/" rel="nofollow">
         {/* <IconGroq className="size-6 mr-2 dark:hidden" />
           <IconGroq className="hidden size-6 mr-2 dark:block" /> */}
         <Image
-          src="/groqlabs-logo-black.png"
-          alt="GroqLabs Logo"
+          src="/logo_trade_dark.svg"
+          alt="NINtrade Logo"
           width={100}
           height={30}
         />
@@ -34,7 +34,7 @@ async function UserOrLogin() {
           href="/new"
           rel="noopener noreferrer"
           className={cn(buttonVariants({ variant: 'ghost' }))}
-          style={{ borderRadius: 0, color: '#F55036', padding: '4px' }}
+          style={{ borderRadius: 0, color: '#21728D', padding: '4px' }}
         >
           <span className="flex">Start New Chat</span>
         </a>
@@ -54,7 +54,7 @@ export function Header() {
       <div className="flex items-center justify-end space-x-2">
         <a
           target="_blank"
-          href="https://github.com/bklieger-groq/groq-gen-ui/"
+          href="https://github.com/ninjapayofficial/"
           rel="noopener noreferrer"
           className={cn(buttonVariants({ variant: 'outline' }))}
           style={{ borderRadius: 0 }}

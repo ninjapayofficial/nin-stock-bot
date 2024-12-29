@@ -15,7 +15,7 @@ export function MarketHeatmap({}) {
     script.async = true
     script.innerHTML = JSON.stringify({
       exchanges: [],
-      dataSource: 'SPX500',
+      dataSource: 'SENSEX',
       grouping: 'sector',
       blockSize: 'market_cap_basic',
       blockColor: 'change',

@@ -104,30 +104,42 @@ function IconOpenAI({ className, ...props }: React.ComponentProps<'svg'>) {
   )
 }
 
-function IconGroq({ className, ...props }: React.ComponentProps<'svg'>) {
+// function IconGroq({ className, ...props }: React.ComponentProps<'svg'>) {
+//   return (
+//     <svg
+//       xmlns="http://www.w3.org/2000/svg"
+//       viewBox="0 0 24 24"
+//       width="24"
+//       height="24"
+//       className={cn('size-4', className)}
+//       {...props}
+//     >
+//       <defs>
+//         <style> {`.cls-1{fill:#f55036;}.cls-2{fill:#fff;}`} </style>
+//       </defs>
+//       <title>groq_endicon</title>
+//       <g id="Layer_1" data-name="Layer 1">
+//         <rect className="cls-1" width="24" height="24" />
+//         <path
+//           className="cls-2"
+//           d="M12,4.85a5.03,5.03,0,1,0,0,10.05h1.65V12.83H12a3.14,3.14,0,1,1,3.14-3.14h0v4.63h0a3.1,3.1,0,0,1-4.87,2.51L8.51,17.87A5.01,5.01,0,0,0,12,19.34h.07a5.04,5.04,0,0,0,5-5.02V9.56A5.04,5.04,0,0,0,12,4.85Z"
+//         />
+//       </g>
+//     </svg>
+//   )
+// }
+
+function IconGroq({ className, ...props }: React.ComponentProps<'img'>) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      width="24"
-      height="24"
+    <img
+      src="/logo_chat_icon.png"
+      alt="NINTrade Icon"
       className={cn('size-4', className)}
       {...props}
-    >
-      <defs>
-        <style> {`.cls-1{fill:#f55036;}.cls-2{fill:#fff;}`} </style>
-      </defs>
-      <title>groq_endicon</title>
-      <g id="Layer_1" data-name="Layer 1">
-        <rect className="cls-1" width="24" height="24" />
-        <path
-          className="cls-2"
-          d="M12,4.85a5.03,5.03,0,1,0,0,10.05h1.65V12.83H12a3.14,3.14,0,1,1,3.14-3.14h0v4.63h0a3.1,3.1,0,0,1-4.87,2.51L8.51,17.87A5.01,5.01,0,0,0,12,19.34h.07a5.04,5.04,0,0,0,5-5.02V9.56A5.04,5.04,0,0,0,12,4.85Z"
-        />
-      </g>
-    </svg>
-  )
+    />
+  );
 }
+
 
 function IconVercel({ className, ...props }: React.ComponentProps<'svg'>) {
   return (
