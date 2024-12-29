@@ -54,7 +54,7 @@ export function Header() {
       <div className="flex items-center justify-end space-x-2">
         <a
           target="_blank"
-          href="https://github.com/ninjapayofficial/"
+          href="https://github.com/ninjapayofficial/nin-stock-bot/"
           rel="noopener noreferrer"
           className={cn(buttonVariants({ variant: 'outline' }))}
           style={{ borderRadius: 0 }}
