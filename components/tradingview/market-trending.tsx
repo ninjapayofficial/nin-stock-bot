@@ -16,7 +16,7 @@ export function MarketTrending({}) {
     script.innerHTML = JSON.stringify({
       colorTheme: 'light',
       dateRange: '1D',
-      exchange: 'US',
+      exchange: 'BSE',
       showChart: true,
       locale: 'en',
       largeChartUrl: '',
