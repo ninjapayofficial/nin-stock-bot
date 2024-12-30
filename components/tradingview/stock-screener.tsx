@@ -17,7 +17,7 @@ export function StockScreener({}) {
       height: '100%',
       defaultColumn: 'overview',
       defaultScreen: 'most_capitalized',
-      market: 'america',
+      market: 'india',
       showToolbar: true,
       colorTheme: 'light',
       locale: 'en',
