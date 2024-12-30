@@ -263,7 +263,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
             }))
               .default([])
               .describe(
-                'Optional list of symbols to compare. e.g. ["MSFT", "GOOGL"]'
+                'Optional list of symbols to compare. e.g. ["BSE:PAYTM", "BSE:SWIGGY"]'
               )
           }),
 
