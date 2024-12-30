@@ -14,8 +14,8 @@ export const metadata = {
     ? new URL(`https://${process.env.VERCEL_URL}`)
     : undefined,
   title: {
-    default: 'NIN StockBot powered by Groq',
-    template: `%s - StockBot powered by Groq`
+    default: 'NIN StockBot',
+    template: `%s - Powered by Nintrade`
   },
   description:
     'Lightning Fast AI Chatbot that Responds With Live Interactive Stock Charts, Financials, News, Screeners, and More.',
