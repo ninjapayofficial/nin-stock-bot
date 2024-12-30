@@ -1,3 +1,4 @@
+// /lib/chat/actions.tsx
 import 'server-only'
 
 import { generateText } from 'ai'
@@ -7,7 +8,7 @@ import {
   streamUI,
   createStreamableValue
 } from 'ai/rsc'
-import { createOpenAI } from '@ai-sdk/openai'
+import { createOpenAI } from '@ai-sdk/openai' 
 
 import { BotCard, BotMessage } from '@/components/stocks/message'
 
@@ -42,14 +43,33 @@ interface MutableAIState {
   get: () => AIState
 }
 
-const MODEL = 'llama3-70b-8192'
-const TOOL_MODEL = 'llama3-70b-8192'
+// Existing GROQ model constants
+const GROQ_MODEL = 'llama3-70b-8192'
+const GROQ_TOOL_MODEL = 'llama3-70b-8192'
 const GROQ_API_KEY_ENV = process.env.GROQ_API_KEY
+
+// New OpenAI model constants
+const OPENAI_MODEL = 'gpt-4-turbo' // Corrected model ID
+const OPENAI_API_KEY_ENV = process.env.OPENAI_API_KEY
+
+// Flag to switch between OpenAI and GROQ
+const useOpenAI = false // Set to true to use GPT-4, false to use GROQ
 
 type ComparisonSymbolObject = {
   symbol: string;
   position: "SameScale";
 };
+
+// Create separate provider instances for GROQ and OpenAI using createOpenAI
+const groqProvider = createOpenAI({
+  baseURL: 'https://api.groq.com/openai/v1',
+  apiKey: GROQ_API_KEY_ENV,
+})
+
+const openAIProvider = createOpenAI({
+  apiKey: OPENAI_API_KEY_ENV,
+  // Add any OpenAI-specific settings here if necessary
+})
 
 async function generateCaption(
   symbol: string,
@@ -57,14 +77,14 @@ async function generateCaption(
   toolName: string,
   aiState: MutableAIState
 ): Promise<string> {
-  const groq = createOpenAI({
-    baseURL: 'https://api.groq.com/openai/v1',
-    apiKey: GROQ_API_KEY_ENV
-  })
-  
+  // Select the appropriate model based on the flag and invoke with model ID
+  const model = useOpenAI
+    ? openAIProvider(OPENAI_MODEL)
+    : groqProvider(GROQ_MODEL)
+
   const stockString = comparisonSymbols.length === 0
-  ? symbol
-  : [symbol, ...comparisonSymbols.map(obj => obj.symbol)].join(', ');
+    ? symbol
+    : [symbol, ...comparisonSymbols.map(obj => obj.symbol)].join(', ');
 
   aiState.update({
     ...aiState.get(),
@@ -73,7 +93,7 @@ async function generateCaption(
 
   const captionSystemMessage =
     `\
-You are a BSE Indian stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
+You are a BSE Indian stock market conversation bot. You can provide the user information about stocks including prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
 
 These are the tools you have available:
 1. showStockFinancials
@@ -109,8 +129,10 @@ You have just called a tool (` +
     ` for ` +
     stockString +
     `) to respond to the user. Now generate text to go alongside that tool response, which may be a graphic like a chart or price history.
-  
-Example:
+
+**Important:** When specifying \`comparisonSymbols\`, the \`position\` field **must** be set to \`"SameScale"\`.
+
+**Example:**
 
 User: What is the price of PAYTM?
 Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
@@ -124,18 +146,19 @@ Assistant (you): This is the price of PAYTM stock. I can also generate a chart o
 or 
 Assistant (you): Would you like to see a chart of PAYTM or get more information about its financials?
 
-Example 2 :
+**Example 2 :**
 
 User: Compare PAYTM and SWIGGY stock prices
 Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockChart" }, "parameters": { "symbol": "BSE:PAYTM" , "comparisonSymbols" : [{"symbol": "BSE:SWIGGY", "position": "SameScale"}] } } } 
 
-Assistant (you): The chart illustrates the recent price movements of Swiggy (BSE:SWIGGY) and Paytm (BSE:PAYTM) stocks. Would you like to see the get more information about the financials of PAYTM and SWIGGY stocks?
+Assistant (you): The chart illustrates the recent price movements of Swiggy (BSE:SWIGGY) and Paytm (BSE:PAYTM) stocks. Would you like to see more information about the financials of PAYTM and SWIGGY stocks?
+
 or
 
 Assistant (you): This is the chart for PAYTM and SWIGGY stocks. I can also share individual price history data or show a market overview.
 
 or 
-Assistant (you): Would you like to see the get more information about the financials of PAYTM and SWIGGY stocks?
+Assistant (you): Would you like to see more information about the financials of PAYTM and SWIGGY stocks?
 
 ## Guidelines
 Talk like one of the above responses, but BE CREATIVE and generate a DIVERSE response. 
@@ -147,7 +170,7 @@ Besides the symbol, you cannot customize any of the screeners or graphics. Do no
 
   try {
     const response = await generateText({
-      model: groq(MODEL),
+      model: model, // Correctly passing LanguageModelV1 instance
       messages: [
         {
           role: 'system',
@@ -187,17 +210,17 @@ async function submitUserMessage(content: string) {
   let textNode: undefined | React.ReactNode
 
   try {
-    const groq = createOpenAI({
-      baseURL: 'https://api.groq.com/openai/v1',
-      apiKey: GROQ_API_KEY_ENV
-    })
+    // Select the appropriate model based on the flag and invoke with model ID
+    const model = useOpenAI
+      ? openAIProvider(OPENAI_MODEL)
+      : groqProvider(GROQ_MODEL)
 
     const result = await streamUI({
-      model: groq(TOOL_MODEL),
+      model: model, // Correctly passing LanguageModelV1 instance
       initial: <SpinnerMessage />,
       maxRetries: 1,
       system: `\
-You are a BSE Indian stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
+You are a BSE Indian stock market conversation bot. You can provide the user information about stocks including prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
 
 ### Cryptocurrency Tickers
 For any cryptocurrency, append "USD" at the end of the ticker when using functions. For instance, "DOGE" should be "DOGEUSD".
@@ -205,15 +228,18 @@ For any cryptocurrency, append "USD" at the end of the ticker when using functio
 ### Guidelines:
 
 Never provide empty results to the user. Provide the relevant tool if it matches the user's request. Otherwise, respond as the stock bot.
-Example:
+
+**Important:** When specifying \`comparisonSymbols\`, the \`position\` field **must** be set to \`"SameScale"\`.
+
+**Example:**
 
 User: What is the price of PAYTM?
 Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
 
-Example 2:
+**Example 2:**
 
-User: What is the price of PAYTM?
-Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
+User: Compare PAYTM and SWIGGY stock prices
+Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockChart" }, "parameters": { "symbol": "BSE:PAYTM" , "comparisonSymbols" : [{"symbol": "BSE:SWIGGY", "position": "SameScale"}] } } } 
     `,
       messages: [
         ...aiState.get().messages.map((message: any) => ({
@@ -238,8 +264,8 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 id: nanoid(),
                 role: 'assistant',
                 content
-              }
-            ]
+              },
+            ],
           })
         } else {
           textStream.update(delta)
@@ -259,7 +285,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
               ),
             comparisonSymbols: z.array(z.object({
               symbol: z.string(),
-              position: z.literal("SameScale")
+              position: z.literal("SameScale") // Ensure only "SameScale" is used
             }))
               .default([])
               .describe(
@@ -322,6 +348,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
             )
           }
         },
+        // Repeat similar updates for other tools
         showStockPrice: {
           description:
             'Show the price of a given stock. Use this to show the price and price history to the user.',
@@ -332,6 +359,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
               )
           }),
+
           generate: async function* ({ symbol }) {
             yield (
               <BotCard>
@@ -371,6 +399,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 }
               ]
             })
+
             const caption = await generateCaption(
               symbol,
               [],
@@ -386,6 +415,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
             )
           }
         },
+        // Continue with other tools (showStockFinancials, showStockNews, etc.) similarly
         showStockFinancials: {
           description:
             'Show the financials of a given stock. Use this to show the financials to the user.',
@@ -396,6 +426,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
               )
           }),
+
           generate: async function* ({ symbol }) {
             yield (
               <BotCard>
@@ -461,6 +492,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
               )
           }),
+
           generate: async function* ({ symbol }) {
             yield (
               <BotCard>
@@ -559,6 +591,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 }
               ]
             })
+
             const caption = await generateCaption(
               'Generic',
               [],
@@ -616,6 +649,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 }
               ]
             })
+
             const caption = await generateCaption(
               'Generic',
               [],
@@ -673,6 +707,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 }
               ]
             })
+
             const caption = await generateCaption(
               'Generic',
               [],
@@ -730,6 +765,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 }
               ]
             })
+
             const caption = await generateCaption(
               'Generic',
               [],
@@ -787,6 +823,7 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
                 }
               ]
             })
+
             const caption = await generateCaption(
               'Generic',
               [],
@@ -810,10 +847,11 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
       display: result.value
     }
   } catch (err: any) {
-    // If key is missing, show error message that Groq API Key is missing.
-    if (err.message.includes('OpenAI API key is missing.')) {
+    // Determine which API key is missing based on the flag
+    const missingKey = useOpenAI ? 'OPENAI_API_KEY' : 'GROQ_API_KEY'
+    if (err.message.includes(`${missingKey}`)) {
       err.message =
-        'Groq API key is missing. Pass it using the GROQ_API_KEY environment variable. Try restarting the application if you recently changed your environment variables.'
+        `${missingKey} is missing. Pass it using the appropriate environment variable. Try restarting the application if you recently changed your environment variables.`
     }
     return {
       id: nanoid(),
