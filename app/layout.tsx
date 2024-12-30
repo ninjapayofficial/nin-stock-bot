@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { Providers } from '@/components/providers'
 import { Header } from '@/components/header'
 import { Toaster } from '@/components/ui/sonner'
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
   metadataBase: process.env.VERCEL_URL
@@ -56,7 +57,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <div className="flex flex-col min-h-screen">
             <Header />
             <main className="flex flex-col flex-1 bg-muted/50" style={{ backgroundColor:'#f6f9fd' }} 
-            >{children}</main>
+            >{children}
+            <SpeedInsights />
+            </main>
           </div>
           {/* <ThemeToggle /> */}
         </Providers>
