@@ -49,7 +49,7 @@ const GROQ_TOOL_MODEL = 'llama3-70b-8192'
 const GROQ_API_KEY_ENV = process.env.GROQ_API_KEY
 
 // New OpenAI model constants
-const OPENAI_MODEL = 'gpt-4-turbo' // Corrected model ID
+const OPENAI_MODEL = 'gpt-4o' // Best model so far.... other: 'gpt-4-turbo'
 const OPENAI_API_KEY_ENV = process.env.OPENAI_API_KEY
 
 // Flag to switch between OpenAI and GROQ
