@@ -45,7 +45,7 @@ interface MutableAIState {
 }
 
 // Existing GROQ model constants
-const GROQ_MODEL = 'llama3-70b-8192'
+const GROQ_MODEL = 'llama-3.3-70b-versatile' // llama-3.3-70b-versatile | llama3-70b-8192
 const GROQ_TOOL_MODEL = 'llama3-70b-8192'
 const GROQ_API_KEY_ENV = process.env.GROQ_API_KEY
 
