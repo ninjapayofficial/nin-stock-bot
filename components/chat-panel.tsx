@@ -32,11 +32,11 @@ export function ChatPanel({
   const { submitUserMessage } = useActions()
 
   const exampleMessages = [
-    {
-      heading: 'What is the price',
-      subheading: 'of Swiggy Pvt Ltd.?',
-      message: 'What is the price of Swiggy stock?'
-    },
+    // {
+    //   heading: 'What is the price',
+    //   subheading: 'of Swiggy Pvt Ltd.?',
+    //   message: 'What is the price of Swiggy stock?'
+    // },
     {
       heading: 'Show me a stock chart',
       subheading: 'for $Paytm',
@@ -61,6 +61,11 @@ export function ChatPanel({
       heading: 'Show me a screener',
       subheading: 'to find new stocks',
       message: 'Show me a screener to find new stocks'
+    },
+    {
+      heading: 'Would you like to see',
+      subheading: 'a SWOT analysis, technical analysis, QVT analysis, or a checklist for SWIGGY?',
+      message: 'Would you like to see a SWOT analysis, technical analysis, QVT analysis, or a checklist for SWIGGY?'
     }
   ]
 

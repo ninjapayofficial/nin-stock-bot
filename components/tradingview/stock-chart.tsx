@@ -1,3 +1,4 @@
+// /components/tradingview/stock-chart.tsx
 'use client'
 
 import React, { useEffect, useRef, memo } from 'react'

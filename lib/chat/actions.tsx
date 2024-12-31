@@ -25,6 +25,7 @@ import { MarketOverview } from '@/components/tradingview/market-overview'
 import { MarketHeatmap } from '@/components/tradingview/market-heatmap'
 import { MarketTrending } from '@/components/tradingview/market-trending'
 import { ETFHeatmap } from '@/components/tradingview/etf-heatmap'
+import { TrendlyneWidget } from '@/components/trendlyne/trendlyne-widget'
 import { toast } from 'sonner'
 
 export type AIState = {
@@ -123,6 +124,10 @@ This tool shows the daily top trending stocks including the top five gaining, lo
 9. showETFHeatmap
 This tool shows a heatmap of today's ETF market performance across sectors and asset classes.
 
+10. showTrendlyneWidget
+This tool displays a Trendlyne widget for a stock symbol. Specify the \`widgetType\` (swot, technical, qvt, or checklist) and the stock symbol (e.g., SWIGGY). The theme is optional and defaults to "light".
+
+
 
 You have just called a tool (` +
     toolName +
@@ -131,6 +136,7 @@ You have just called a tool (` +
     `) to respond to the user. Now generate text to go alongside that tool response, which may be a graphic like a chart or price history.
 
 **Important:** When specifying \`comparisonSymbols\`, the \`position\` field **must** be set to \`"SameScale"\`.
+**Important:** For showTrendlyneWidget tool, when specifying \`stockSymbol\`, the \`stockSymbol\` field **must** not have the \`BSE:\` prefix.
 
 **Example:**
 
@@ -159,6 +165,14 @@ Assistant (you): This is the chart for PAYTM and SWIGGY stocks. I can also share
 
 or 
 Assistant (you): Would you like to see more information about the financials of PAYTM and SWIGGY stocks?
+
+**Example 3 :**
+
+User: Give me checklist of PAYTM?
+Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showTrendlyneWidget" }, "parameters": { "stockSymbol": "PAYTM", "widgetType": "checklist", "theme": "light" } } } 
+
+Assistant (you): The checklist of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information about its financials.
+
 
 ## Guidelines
 Talk like one of the above responses, but BE CREATIVE and generate a DIVERSE response. 
@@ -230,6 +244,7 @@ For any cryptocurrency, append "USD" at the end of the ticker when using functio
 Never provide empty results to the user. Provide the relevant tool if it matches the user's request. Otherwise, respond as the stock bot.
 
 **Important:** When specifying \`comparisonSymbols\`, the \`position\` field **must** be set to \`"SameScale"\`.
+**Important:** For showTrendlyneWidget tool, when specifying \`stockSymbol\`, the \`stockSymbol\` field **must** not have the \`BSE:\`
 
 **Example:**
 
@@ -838,7 +853,64 @@ Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function
               </BotCard>
             )
           }
-        }
+        },
+        showTrendlyneWidget: {
+          description: `Displays a Trendlyne widget for a specific stock symbol and widget type.`,
+          parameters: z.object({
+            stockSymbol: z.string().describe('The stock symbol, e.g., SWIGGY'),
+            widgetType: z.enum(['swot', 'technical', 'qvt', 'checklist']).describe('The type of widget to display'),
+            theme: z.string().default('light').describe('The theme for the widget. Defaults to "light".'),
+          }),
+          generate: async function* ({ stockSymbol, widgetType, theme }) {
+            yield (
+              <BotCard>
+                <></>
+              </BotCard>
+            );
+        
+            const toolCallId = nanoid();
+        
+            aiState.done({
+              ...aiState.get(),
+              messages: [
+                ...aiState.get().messages,
+                {
+                  id: nanoid(),
+                  role: 'assistant',
+                  content: [
+                    {
+                      type: 'tool-call',
+                      toolName: 'showTrendlyneWidget',
+                      toolCallId,
+                      args: { stockSymbol, widgetType, theme },
+                    },
+                  ],
+                },
+                {
+                  id: nanoid(),
+                  role: 'tool',
+                  content: [
+                    {
+                      type: 'tool-result',
+                      toolName: 'showTrendlyneWidget',
+                      toolCallId,
+                      result: { stockSymbol, widgetType, theme },
+                    },
+                  ],
+                },
+              ],
+            });
+        
+            const caption = `This is the ${widgetType} analysis for ${stockSymbol}. Let me know if you'd like to explore another widget or more stock details.`;
+        
+            return (
+              <BotCard>
+                <TrendlyneWidget stockSymbol={stockSymbol} widgetType={widgetType} theme={theme} />
+                {caption}
+              </BotCard>
+            );
+          },
+        },        
       }
     })
 
