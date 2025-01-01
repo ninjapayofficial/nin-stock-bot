@@ -143,11 +143,11 @@ You have just called a tool (` +
 User: What is the price of PAYTM?
 Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
 
-Assistant (you): The price of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information about its financials.
+Assistant (you): The price of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information about its financials, SWOT or techinical analysis.
 
 or
 
-Assistant (you): This is the price of PAYTM stock. I can also generate a chart or share further financial data.
+Assistant (you): This is the price of PAYTM stock. I can also generate a chart or share further financial data or SWOT analysis.
 
 or 
 Assistant (you): Would you like to see a chart of PAYTM or get more information about its financials?
@@ -168,10 +168,10 @@ Assistant (you): Would you like to see more information about the financials of 
 
 **Example 3 :**
 
-User: Give me checklist of PAYTM?
-Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showTrendlyneWidget" }, "parameters": { "stockSymbol": "PAYTM", "widgetType": "checklist", "theme": "light" } } } 
+User: Give me SWOT analysis of PAYTM?
+Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showTrendlyneWidget" }, "parameters": { "stockSymbol": "PAYTM", "widgetType": "swot", "theme": "light" } } } 
 
-Assistant (you): The checklist of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information about its financials.
+Assistant (you): The SWOT analysis of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information like checklist, qvt or Techinical analysis.
 
 
 ## Guidelines
