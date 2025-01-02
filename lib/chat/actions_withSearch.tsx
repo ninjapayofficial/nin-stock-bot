@@ -1,3 +1,4 @@
+// // /lib/chat/actions.tsx
 // import 'server-only'
 
 // import { generateText } from 'ai'
@@ -7,7 +8,7 @@
 //   streamUI,
 //   createStreamableValue
 // } from 'ai/rsc'
-// import { createOpenAI } from '@ai-sdk/openai'
+// import { createOpenAI } from '@ai-sdk/openai' 
 
 // import { BotCard, BotMessage } from '@/components/stocks/message'
 
@@ -24,6 +25,8 @@
 // import { MarketHeatmap } from '@/components/tradingview/market-heatmap'
 // import { MarketTrending } from '@/components/tradingview/market-trending'
 // import { ETFHeatmap } from '@/components/tradingview/etf-heatmap'
+// import { TrendlyneWidget } from '@/components/trendlyne/trendlyne-widget'
+// import { performSearch } from '@/lib/chat/tools/search'
 // import { toast } from 'sonner'
 
 // export type AIState = {
@@ -42,14 +45,33 @@
 //   get: () => AIState
 // }
 
-// const MODEL = 'llama3-70b-8192'
-// const TOOL_MODEL = 'llama3-70b-8192'
+// // Existing GROQ model constants
+// const GROQ_MODEL = 'llama3-70b-8192' // llama-3.3-70b-versatile | llama3-70b-8192
+// const GROQ_TOOL_MODEL = 'llama3-70b-8192'
 // const GROQ_API_KEY_ENV = process.env.GROQ_API_KEY
+
+// // New OpenAI model constants
+// const OPENAI_MODEL = 'gpt-4o' // Best model so far.... other: 'gpt-4-turbo'
+// const OPENAI_API_KEY_ENV = process.env.OPENAI_API_KEY
+
+// // Flag to switch between OpenAI and GROQ
+// const useOpenAI = false // Set to true to use GPT-4, false to use GROQ
 
 // type ComparisonSymbolObject = {
 //   symbol: string;
 //   position: "SameScale";
 // };
+
+// // Create separate provider instances for GROQ and OpenAI using createOpenAI
+// const groqProvider = createOpenAI({
+//   baseURL: 'https://api.groq.com/openai/v1',
+//   apiKey: GROQ_API_KEY_ENV,
+// })
+
+// const openAIProvider = createOpenAI({
+//   apiKey: OPENAI_API_KEY_ENV,
+//   // Add any OpenAI-specific settings here if necessary
+// })
 
 // async function generateCaption(
 //   symbol: string,
@@ -57,14 +79,14 @@
 //   toolName: string,
 //   aiState: MutableAIState
 // ): Promise<string> {
-//   const groq = createOpenAI({
-//     baseURL: 'https://api.groq.com/openai/v1',
-//     apiKey: GROQ_API_KEY_ENV
-//   })
-  
+//   // Select the appropriate model based on the flag and invoke with model ID
+//   const model = useOpenAI
+//     ? openAIProvider(OPENAI_MODEL)
+//     : groqProvider(GROQ_MODEL)
+
 //   const stockString = comparisonSymbols.length === 0
-//   ? symbol
-//   : [symbol, ...comparisonSymbols.map(obj => obj.symbol)].join(', ');
+//     ? symbol
+//     : [symbol, ...comparisonSymbols.map(obj => obj.symbol)].join(', ');
 
 //   aiState.update({
 //     ...aiState.get(),
@@ -73,7 +95,7 @@
 
 //   const captionSystemMessage =
 //     `\
-// You are a BSE Indian stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
+// You are a BSE Indian stock market conversation bot. You can provide the user information about stocks including prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
 
 // These are the tools you have available:
 // 1. showStockFinancials
@@ -103,39 +125,71 @@
 // 9. showETFHeatmap
 // This tool shows a heatmap of today's ETF market performance across sectors and asset classes.
 
+// 10. showTrendlyneWidget
+// This tool displays a Trendlyne widget for a stock symbol. Specify the \`widgetType\` (swot, technical, qvt, or checklist) and the stock symbol (e.g., SWIGGY). The theme is optional and defaults to "light".
+
+// 11. showSearchResults
+// This tool searches the web for information, extracts content from the top results, and provides a summary or analysis. Use this tool for queries requiring external knowledge or deeper insights. 
+
+
 
 // You have just called a tool (` +
 //     toolName +
 //     ` for ` +
 //     stockString +
 //     `) to respond to the user. Now generate text to go alongside that tool response, which may be a graphic like a chart or price history.
-  
-// Example:
+
+// **Important:** When specifying \`comparisonSymbols\`, the \`position\` field **must** be set to \`"SameScale"\`.
+// **Important:** For showTrendlyneWidget tool, when specifying \`stockSymbol\`, the \`stockSymbol\` field **must** not have the \`BSE:\` prefix.
+
+// **Example:**
 
 // User: What is the price of PAYTM?
 // Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
 
-// Assistant (you): The price of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information about its financials.
+// Assistant (you): The price of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information about its financials, SWOT or techinical analysis.
 
 // or
 
-// Assistant (you): This is the price of PAYTM stock. I can also generate a chart or share further financial data.
+// Assistant (you): This is the price of PAYTM stock. I can also generate a chart or share further financial data or SWOT analysis.
 
 // or 
 // Assistant (you): Would you like to see a chart of PAYTM or get more information about its financials?
 
-// Example 2 :
+// **Example 2 :**
 
 // User: Compare PAYTM and SWIGGY stock prices
 // Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockChart" }, "parameters": { "symbol": "BSE:PAYTM" , "comparisonSymbols" : [{"symbol": "BSE:SWIGGY", "position": "SameScale"}] } } } 
 
-// Assistant (you): The chart illustrates the recent price movements of Swiggy (BSE:SWIGGY) and Paytm (BSE:PAYTM) stocks. Would you like to see the get more information about the financials of PAYTM and SWIGGY stocks?
+// Assistant (you): The chart illustrates the recent price movements of Swiggy (BSE:SWIGGY) and Paytm (BSE:PAYTM) stocks. Would you like to see more information about the financials of PAYTM and SWIGGY stocks?
+
 // or
 
 // Assistant (you): This is the chart for PAYTM and SWIGGY stocks. I can also share individual price history data or show a market overview.
 
 // or 
-// Assistant (you): Would you like to see the get more information about the financials of PAYTM and SWIGGY stocks?
+// Assistant (you): Would you like to see more information about the financials of PAYTM and SWIGGY stocks?
+
+// **Example 3 :**
+
+// User: Give me SWOT analysis of PAYTM?
+// Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showTrendlyneWidget" }, "parameters": { "stockSymbol": "PAYTM", "widgetType": "swot", "theme": "light" } } } 
+
+// Assistant (you): The SWOT analysis of PAYTM stock is provided above. I can also share a chart of PAYTM or get more information like checklist, qvt or Techinical analysis.
+
+// **Example 4 :**
+
+// User: When is the IPO of Swiggy?
+// Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showSearchResults" }, "parameters": { "query": "latest today's updates on USD INR price movements and events" } } } 
+
+// Assistant (you): Based on the results, The shares got listed on BSE, NSE on November 13, 2024. Swiggy IPO price band is set at ₹371 to ₹390 per share. The minimum lot size for an application is 38. The minimum amount of investment required by retail investors is ₹14,820.
+
+// **Example 5 :**
+
+// User: Any new upcoming IPO's?
+// Assistant: { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showSearchResults" }, "parameters": { "query": "latest today's updates on USD INR price movements and events" } } } 
+
+// Assistant (you): Based on the information retrieved, the upcoming IPOs in India are: 1. Indobell Insulation (INDOBELL SME) with the IPO date from 6th to 8th January 2025 and the listing date on 13th January 2025. 2. Quadrant Future Tek (QUADRANT) with the IPO date from 7th to 9th January 2025 and the listing date on 14th January 2025. 3. Capital Infra Trust InvIT (CAPITALINFRA) with the IPO date from 7th to 9th January 2025 and the listing date on 14th January 2025. 4. Zepto, with the IPO date yet to be announced.
 
 // ## Guidelines
 // Talk like one of the above responses, but BE CREATIVE and generate a DIVERSE response. 
@@ -147,7 +201,7 @@
 
 //   try {
 //     const response = await generateText({
-//       model: groq(MODEL),
+//       model: model, // Correctly passing LanguageModelV1 instance
 //       messages: [
 //         {
 //           role: 'system',
@@ -187,17 +241,17 @@
 //   let textNode: undefined | React.ReactNode
 
 //   try {
-//     const groq = createOpenAI({
-//       baseURL: 'https://api.groq.com/openai/v1',
-//       apiKey: GROQ_API_KEY_ENV
-//     })
+//     // Select the appropriate model based on the flag and invoke with model ID
+//     const model = useOpenAI
+//       ? openAIProvider(OPENAI_MODEL)
+//       : groqProvider(GROQ_MODEL)
 
 //     const result = await streamUI({
-//       model: groq(TOOL_MODEL),
+//       model: model, // Correctly passing LanguageModelV1 instance
 //       initial: <SpinnerMessage />,
 //       maxRetries: 1,
 //       system: `\
-// You are a BSE Indian stock market conversation bot. You can provide the user information about stocks include prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
+// You are a BSE Indian stock market conversation bot. You can provide the user information about stocks including prices and charts in the UI. You do not have access to any information and should only provide information by calling functions.
 
 // ### Cryptocurrency Tickers
 // For any cryptocurrency, append "USD" at the end of the ticker when using functions. For instance, "DOGE" should be "DOGEUSD".
@@ -205,15 +259,19 @@
 // ### Guidelines:
 
 // Never provide empty results to the user. Provide the relevant tool if it matches the user's request. Otherwise, respond as the stock bot.
-// Example:
+
+// **Important:** When specifying \`comparisonSymbols\`, the \`position\` field **must** be set to \`"SameScale"\`.
+// **Important:** For showTrendlyneWidget tool, when specifying \`stockSymbol\`, the \`stockSymbol\` field **must** not have the \`BSE:\`
+
+// **Example:**
 
 // User: What is the price of PAYTM?
 // Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
 
-// Example 2:
+// **Example 2:**
 
-// User: What is the price of PAYTM?
-// Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockPrice" }, "parameters": { "symbol": "BSE:PAYTM" } } } 
+// User: Compare PAYTM and SWIGGY stock prices
+// Assistant (you): { "tool_call": { "id": "pending", "type": "function", "function": { "name": "showStockChart" }, "parameters": { "symbol": "BSE:PAYTM" , "comparisonSymbols" : [{"symbol": "BSE:SWIGGY", "position": "SameScale"}] } } } 
 //     `,
 //       messages: [
 //         ...aiState.get().messages.map((message: any) => ({
@@ -238,8 +296,8 @@
 //                 id: nanoid(),
 //                 role: 'assistant',
 //                 content
-//               }
-//             ]
+//               },
+//             ],
 //           })
 //         } else {
 //           textStream.update(delta)
@@ -259,7 +317,7 @@
 //               ),
 //             comparisonSymbols: z.array(z.object({
 //               symbol: z.string(),
-//               position: z.literal("SameScale")
+//               position: z.literal("SameScale") // Ensure only "SameScale" is used
 //             }))
 //               .default([])
 //               .describe(
@@ -322,6 +380,7 @@
 //             )
 //           }
 //         },
+//         // Repeat similar updates for other tools
 //         showStockPrice: {
 //           description:
 //             'Show the price of a given stock. Use this to show the price and price history to the user.',
@@ -332,6 +391,7 @@
 //                 'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
 //               )
 //           }),
+
 //           generate: async function* ({ symbol }) {
 //             yield (
 //               <BotCard>
@@ -371,6 +431,7 @@
 //                 }
 //               ]
 //             })
+
 //             const caption = await generateCaption(
 //               symbol,
 //               [],
@@ -386,6 +447,7 @@
 //             )
 //           }
 //         },
+//         // Continue with other tools (showStockFinancials, showStockNews, etc.) similarly
 //         showStockFinancials: {
 //           description:
 //             'Show the financials of a given stock. Use this to show the financials to the user.',
@@ -396,6 +458,7 @@
 //                 'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
 //               )
 //           }),
+
 //           generate: async function* ({ symbol }) {
 //             yield (
 //               <BotCard>
@@ -461,6 +524,7 @@
 //                 'The name or symbol of the stock or currency. e.g. DOGE/PAYTM/INR.'
 //               )
 //           }),
+
 //           generate: async function* ({ symbol }) {
 //             yield (
 //               <BotCard>
@@ -559,6 +623,7 @@
 //                 }
 //               ]
 //             })
+
 //             const caption = await generateCaption(
 //               'Generic',
 //               [],
@@ -616,6 +681,7 @@
 //                 }
 //               ]
 //             })
+
 //             const caption = await generateCaption(
 //               'Generic',
 //               [],
@@ -673,6 +739,7 @@
 //                 }
 //               ]
 //             })
+
 //             const caption = await generateCaption(
 //               'Generic',
 //               [],
@@ -730,6 +797,7 @@
 //                 }
 //               ]
 //             })
+
 //             const caption = await generateCaption(
 //               'Generic',
 //               [],
@@ -787,6 +855,7 @@
 //                 }
 //               ]
 //             })
+
 //             const caption = await generateCaption(
 //               'Generic',
 //               [],
@@ -801,7 +870,143 @@
 //               </BotCard>
 //             )
 //           }
-//         }
+//         },
+//         showTrendlyneWidget: {
+//           description: `Displays a Trendlyne widget for a specific stock symbol and widget type.`,
+//           parameters: z.object({
+//             stockSymbol: z.string().describe('The stock symbol, e.g., SWIGGY'),
+//             widgetType: z.enum(['swot', 'technical', 'qvt', 'checklist']).describe('The type of widget to display'),
+//             theme: z.string().default('light').describe('The theme for the widget. Defaults to "light".'),
+//           }),
+//           generate: async function* ({ stockSymbol, widgetType, theme }) {
+//             yield (
+//               <BotCard>
+//                 <></>
+//               </BotCard>
+//             );
+        
+//             const toolCallId = nanoid();
+        
+//             aiState.done({
+//               ...aiState.get(),
+//               messages: [
+//                 ...aiState.get().messages,
+//                 {
+//                   id: nanoid(),
+//                   role: 'assistant',
+//                   content: [
+//                     {
+//                       type: 'tool-call',
+//                       toolName: 'showTrendlyneWidget',
+//                       toolCallId,
+//                       args: { stockSymbol, widgetType, theme },
+//                     },
+//                   ],
+//                 },
+//                 {
+//                   id: nanoid(),
+//                   role: 'tool',
+//                   content: [
+//                     {
+//                       type: 'tool-result',
+//                       toolName: 'showTrendlyneWidget',
+//                       toolCallId,
+//                       result: { stockSymbol, widgetType, theme },
+//                     },
+//                   ],
+//                 },
+//               ],
+//             });
+        
+//             const caption = `This is the ${widgetType} analysis for ${stockSymbol}. Let me know if you'd like to explore another widget or more stock details.`;
+        
+//             return (
+//               <BotCard>
+//                 <TrendlyneWidget stockSymbol={stockSymbol} widgetType={widgetType} theme={theme} />
+//                 {caption}
+//               </BotCard>
+//             );
+//           },
+//         },
+//         showSearchResults: {
+//           description: `Search the web for information, extract content from top results, and analyze it.`,
+//           parameters: z.object({
+//             query: z.string().describe('The search query string, e.g., "When is the swiggy ipo listing".'),
+//           }),
+//           generate: async function* ({ query }) {
+//             yield (
+//               <BotCard>
+//                 <></>
+//               </BotCard>
+//             );
+        
+//             const toolCallId = nanoid();
+        
+//             aiState.done({
+//               ...aiState.get(),
+//               messages: [
+//                 ...aiState.get().messages,
+//                 {
+//                   id: nanoid(),
+//                   role: 'assistant',
+//                   content: [
+//                     {
+//                       type: 'tool-call',
+//                       toolName: 'showSearchResults',
+//                       toolCallId,
+//                       args: { query },
+//                     },
+//                   ],
+//                 },
+//                 {
+//                   id: nanoid(),
+//                   role: 'tool',
+//                   content: [
+//                     {
+//                       type: 'tool-result',
+//                       toolName: 'showSearchResults',
+//                       toolCallId,
+//                       result: { query },
+//                     },
+//                   ],
+//                 },
+//               ],
+//             });
+        
+//             // Perform search
+//             const { answer, urls, summary } = await performSearch(query);
+        
+//             // Create analysis prompt
+//             const analysisPrompt = `
+//         You are an AI assistant that analyzes web content. Here's the information retrieved from a web search:
+        
+//         "${answer}"
+        
+//         Answer the following question based on this information:
+//         "${query}"
+//             `;
+        
+//             const modelResponse = await generateText({
+//               model: openAIProvider(OPENAI_MODEL),
+//               messages: [
+//                 { role: 'system', content: analysisPrompt },
+//               ],
+//             });
+        
+//             return (
+//               <BotCard>
+//                 <div>
+//                   <strong>Direct Answer:</strong>
+//                   <p>{answer}</p>
+//                   <strong>Search Results:</strong>
+//                   <pre>{summary}</pre>
+//                   <strong>Answer:</strong>
+//                   <p>{modelResponse.text || 'Unable to analyze the content.'}</p>
+//                 </div>
+//               </BotCard>
+//             );
+//           },
+//         },  // Tool end                
 //       }
 //     })
 
@@ -810,10 +1015,11 @@
 //       display: result.value
 //     }
 //   } catch (err: any) {
-//     // If key is missing, show error message that Groq API Key is missing.
-//     if (err.message.includes('OpenAI API key is missing.')) {
+//     // Determine which API key is missing based on the flag
+//     const missingKey = useOpenAI ? 'OPENAI_API_KEY' : 'GROQ_API_KEY'
+//     if (err.message.includes(`${missingKey}`)) {
 //       err.message =
-//         'Groq API key is missing. Pass it using the GROQ_API_KEY environment variable. Try restarting the application if you recently changed your environment variables.'
+//         `${missingKey} is missing. Pass it using the appropriate environment variable. Try restarting the application if you recently changed your environment variables.`
 //     }
 //     return {
 //       id: nanoid(),
